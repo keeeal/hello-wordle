@@ -14,11 +14,14 @@ class Game:
         self.answer = choice(answers)
         self.valid_words = valid_words
         self.word_length = word_length
+        self.is_won = False
+        self.n_guesses = 0
 
     def guess(self, guess: str) -> list[int]:
         if guess not in self.valid_words:
             return self.word_length * [-1]
 
+        self.n_guesses += 1
         feedback = []
 
         for i, j in zip(guess, self.answer):
@@ -29,7 +32,11 @@ class Game:
             else:
                 feedback.append(0)
 
+        if all((i == 2) for i in feedback):
+            self.is_won = True
+
         return feedback
+
 
 if __name__ == "__main__":
 
@@ -39,7 +46,7 @@ if __name__ == "__main__":
 
     feedback = [0, 0, 0, 0, 0]
 
-    while not all((i == 2) for i in feedback):
+    while not game.is_won:
         guess = input()
         feedback = game.guess(guess)
         print(feedback)
