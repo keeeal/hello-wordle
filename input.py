@@ -8,7 +8,7 @@ def read_files(f1: str, f2: str) -> tuple[list[str], list[str]]:
 
     guesses = list(map(str.strip, guesses))
     answers = list(map(str.strip, answers))
-
+    guesses.extend(answers)
     return guesses, answers
 
 
