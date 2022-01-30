@@ -15,35 +15,35 @@ def safe_log2(x):
 
 class EntropyPlayer:
     def __init__(self, vocabulary: Sequence[str]) -> None:
+        self.word_length = len(vocabulary[0])
+        assert all(len(word) == self.word_length for word in vocabulary)
+
         self.vocabulary = list(vocabulary)
         self.valid_words = list(vocabulary)
         self.last_guess: Optional[str] = None
 
     def guess(self) -> str:
-        if len(self.valid_words) == 1:
-            return self.valid_words[0]
 
         entropy_per_letter = {}
-        entropy_per_position = [{} for _ in range(5)]
-        entropy_per_word = {}
+        entropy_per_position = [{} for _ in range(self.word_length)]
 
         for letter in ascii_lowercase:
             p_true = sum((letter in word) for word in self.valid_words) / len(self.valid_words)
             entropy_per_letter[letter] = -sum(p * safe_log2(p) for p in (p_true, 1 - p_true))
 
-        for position in range(5):
+        for n in range(self.word_length):
             for letter in ascii_lowercase:
-                p_true = sum((letter == word[position]) for word in self.valid_words) / len(self.valid_words)
-                entropy_per_position[position][letter] = -sum(p * safe_log2(p) for p in (p_true, 1 - p_true))
+                p_true = sum((letter == word[n]) for word in self.valid_words) / len(self.valid_words)
+                entropy_per_position[n][letter] = -sum(p * safe_log2(p) for p in (p_true, 1 - p_true))
 
-        for word in self.vocabulary:
-            entropy_per_word[word] = sum(
-                entropy_per_letter[letter] for letter in set(word)
-            ) + sum(
-                entropy_per_position[position][word[position]] for position in range(5)
-            )
+        def entropy(word: str) -> float:
+            return sum(entropy_per_letter[letter] for letter in set(word)) \
+                + sum(entropy_per_position[n][letter] for n, letter in enumerate(word))
 
-        self.last_guess = max(self.vocabulary, key=entropy_per_word.get)
+        # this part is ad-hoc and there is probably a better way
+        pool = self.valid_words if len(self.valid_words) < 3 else self.vocabulary
+
+        self.last_guess = max(pool, key=entropy)
         self.vocabulary.remove(self.last_guess)
         return self.last_guess
 
@@ -54,5 +54,3 @@ class EntropyPlayer:
                 self.valid_words,
             )
         )
-
-        print(self.valid_words)

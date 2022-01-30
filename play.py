@@ -24,22 +24,17 @@ def play_game(player, game, verbose=False):
     return game.n_guesses
 
 
-def main(player: str, answer: Optional[str], verbose: bool):
-    match player:
-        case "random":
-            player_class = RandomPlayer
-        case "valid":
-            player_class = ValidPlayer
-        case "entropy":
-            player_class = EntropyPlayer
+def main(player: str, answer: Optional[str], verbose: bool, plot: bool):
+    player_class = {
+        "random": RandomPlayer,
+        "valid": ValidPlayer,
+        "entropy": EntropyPlayer,
+    }[player]
 
     allowed_guesses, answers = read_files(
         Path("data") / "wordle-allowed-guesses.txt",
         Path("data") / "wordle-answers-alphabetical.txt",
     )
-
-    with open(Path('data') / "standford-graphbase.txt") as f:
-        standford = list(map(str.strip, f.readlines()))
 
     games = [Game([a], allowed_guesses) for a in ([answer] if answer else answers)]
     players = [player_class(vocabulary=answers) for _ in games]
@@ -56,6 +51,13 @@ def main(player: str, answer: Optional[str], verbose: bool):
     print("STD:", game_lengths.std())
     print("WIN:", sum(game_lengths <= 6) / len(game_lengths))
 
+    if plot:
+        from seaborn import histplot
+
+        ax = histplot(y=game_lengths, binwidth=1, discrete=True)
+        ax.set_ylabel("Number of Guesses")
+        ax.get_figure().savefig('plot.png')
+
 
 if __name__ == "__main__":
     import argparse
@@ -64,4 +66,5 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--player", choices=['random', 'valid', 'entropy'], default='valid')
     parser.add_argument("-a", "--answer")
     parser.add_argument("-v", "--verbose", action='store_true')
+    parser.add_argument("-plot", "--plot", action='store_true')
     main(**vars(parser.parse_args()))
