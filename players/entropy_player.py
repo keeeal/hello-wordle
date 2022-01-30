@@ -1,9 +1,16 @@
-
 from functools import partial
 from math import log2
 from string import ascii_lowercase
 
 from utils.word import is_valid
+
+
+def safe_log2(x):
+    try:
+        return log2(x)
+    except ValueError:
+        return 0
+
 
 class EntropyPlayer:
     def __init__(self, vocabulary) -> None:
@@ -11,26 +18,27 @@ class EntropyPlayer:
         self.last_guess = None
 
     def guess(self) -> str:
-        entropy = {}
+        entropy_per_letter = {}
+        entropy_per_position = [{} for _ in range(5)]
+        entropy_per_word = {}
 
         for letter in ascii_lowercase:
-            data = [(letter in word) for word in self.valid_words]
-            p_true = sum(data) / len(data)
-            p_false = 1 - p_true
+            p_true = sum((letter in word) for word in self.valid_words) / len(self.valid_words)
+            entropy_per_letter[letter] = -sum(p * safe_log2(p) for p in (p_true, 1 - p_true))
 
-            e = 0
-            if p_true:
-                e += p_true * log2(p_true)
-            if p_false:
-                e += p_false * log2(p_false)
+        for position in range(5):
+            for letter in ascii_lowercase:
+                p_true = sum((letter == word[position]) for word in self.valid_words) / len(self.valid_words)
+                entropy_per_position[position][letter] = -sum(p * safe_log2(p) for p in (p_true, 1 - p_true))
 
-            entropy[letter] = -e
+        for word in self.valid_words:
+            entropy_per_word[word] = sum(
+                entropy_per_letter[letter] for letter in set(word)
+            ) + sum(
+                entropy_per_position[position][word[position]] for position in range(5)
+            )
 
-        entropy_words = sorted(
-            (sum(entropy[l] for l in set(w)), w) for w in self.valid_words
-        )
-
-        self.last_guess = entropy_words[-1][-1]
+        self.last_guess = max(self.valid_words, key=entropy_per_word.get)
         return self.last_guess
 
     def update(self, feedback):
