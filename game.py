@@ -4,6 +4,7 @@ from random import choice
 from typing import Sequence
 
 from utils.input import read_files
+from utils.keyboard import Keyboard
 
 
 class InvalidGuess(Exception):
@@ -61,6 +62,7 @@ if __name__ == "__main__":
     )
 
     game = Game(answers, allowed_guesses)
+    keyboard = Keyboard()
 
     while not game.is_won:
         guess = input()
@@ -75,6 +77,8 @@ if __name__ == "__main__":
             continue
 
         print(feedback)
+        print(*keyboard.board,sep="\n")
+      
 
         if game.is_won:
             print("you win")
