@@ -9,6 +9,8 @@ from utils.input import read_files
 class InvalidGuess(Exception):
     pass
 
+class WrongLengthGuess(Exception):
+    pass
 
 class Game:
     def __init__(
@@ -27,6 +29,9 @@ class Game:
         self.n_guesses = 0
 
     def guess(self, guess: str) -> list[int]:
+        if len(guess) != 5:
+            raise WrongLengthGuess(guess)
+
         if guess not in self.allowed_guesses:
             raise InvalidGuess(guess)
 
@@ -64,6 +69,9 @@ if __name__ == "__main__":
             feedback = game.guess(guess)
         except InvalidGuess:
             print(f"{guess} is not a valid word.")
+            continue
+        except WrongLengthGuess:
+            print("Please enter a 5 letter word.")
             continue
 
         print(feedback)
