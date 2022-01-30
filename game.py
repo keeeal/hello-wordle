@@ -1,27 +1,41 @@
-
-from code import interact
-from random import choice
 from itertools import chain
-from typing import Iterable
+from pathlib import Path
+from random import choice
+from typing import Sequence
 
-from input import read_files
+from utils.input import read_files
+
+
+class InvalidGuess(Exception):
+    pass
+
 
 class Game:
-    def __init__(self, answers: Iterable[str], valid_words: Iterable[str], word_length: int = 5) -> None:
-        for word in chain(answers, valid_words):
+    def __init__(
+        self,
+        answers: Sequence[str],
+        allowed_guesses: Sequence[str],
+        word_length: int = 5,
+    ) -> None:
+        for word in chain(answers, allowed_guesses):
             assert len(word) == word_length
 
         self.answer = choice(answers)
-        self.valid_words = valid_words
+        self.allowed_guesses = allowed_guesses
         self.word_length = word_length
         self.is_won = False
         self.n_guesses = 0
 
     def guess(self, guess: str) -> list[int]:
-        if guess not in self.valid_words:
-            return self.word_length * [-1]
+        if guess not in self.allowed_guesses:
+            raise InvalidGuess(guess)
 
         self.n_guesses += 1
+
+        if guess == self.answer:
+            self.is_won = True
+            return self.word_length * [2]
+
         feedback = []
 
         for i, j in zip(guess, self.answer):
@@ -32,24 +46,32 @@ class Game:
             else:
                 feedback.append(0)
 
-        if all((i == 2) for i in feedback):
-            self.is_won = True
-
         return feedback
 
 
 if __name__ == "__main__":
+    allowed_guesses, answers = read_files(
+        Path("data") / "wordle-allowed-guesses.txt",
+        Path("data") / "wordle-answers-alphabetical.txt",
+    )
 
-    valid_words, answers = read_files("wordle-allowed-guesses.txt", "wordle-answers-alphabetical.txt")
-
-    game = Game(answers, valid_words)
-
-    feedback = [0, 0, 0, 0, 0]
+    game = Game(answers, allowed_guesses)
 
     while not game.is_won:
         guess = input()
-        feedback = game.guess(guess)
+
+        try:
+            feedback = game.guess(guess)
+        except InvalidGuess:
+            print(f"{guess} is not a valid word.")
+            continue
+
         print(feedback)
 
-    print(choice(["impressive", "good job", "you win"]))
+        if game.is_won:
+            print("you win")
+            break
 
+        if game.n_guesses >= 6:
+            print("you lose")
+            break
