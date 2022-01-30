@@ -1,5 +1,7 @@
+from typing import Iterable
 
-def is_valid(word: str, last_guess, feedback) -> bool:
+
+def is_valid(word: str, last_guess: str, feedback: Iterable[int]) -> bool:
     for i, j, k in zip(word, last_guess, feedback):
         match k:
             case 0:

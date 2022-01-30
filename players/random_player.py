@@ -1,14 +1,13 @@
-
 from random import shuffle
+from typing import Iterable, Sequence
 
 class RandomPlayer:
-    def __init__(self, vocabulary) -> None:
-        self.vocabulary = vocabulary
+    def __init__(self, vocabulary: Sequence[str]) -> None:
+        self.vocabulary = list(vocabulary)
         shuffle(self.vocabulary)
-        self.iterator = iter(self.vocabulary)
 
     def guess(self) -> str:
-        return next(self.iterator)
+        return self.vocabulary.pop()
 
-    def update(self, feedback):
+    def update(self, feedback: Iterable[int]):
         pass

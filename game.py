@@ -30,7 +30,7 @@ class Game:
         self.n_guesses = 0
 
     def guess(self, guess: str) -> list[int]:
-        if len(guess) != 5:
+        if len(guess) != self.word_length:
             raise WrongLengthGuess(guess)
 
         if guess not in self.allowed_guesses:
@@ -73,12 +73,12 @@ if __name__ == "__main__":
             print(f"{guess} is not a valid word.")
             continue
         except WrongLengthGuess:
-            print("Please enter a 5 letter word.")
+            print(f"Please enter a {game.word_length} letter word.")
             continue
 
         print(feedback)
         print(*keyboard.board,sep="\n")
-      
+
 
         if game.is_won:
             print("you win")
