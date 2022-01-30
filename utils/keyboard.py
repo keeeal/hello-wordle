@@ -6,6 +6,13 @@ class Keyboard:
             board = f.readlines()
 
         self.board = list(map(str.strip, board))
+       # self.status = length(readlines)
+
+    
+   # def update(self, feedback, guess):
+
+
+    #def show(self):
 
 
 
