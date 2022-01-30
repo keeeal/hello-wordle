@@ -1,6 +1,4 @@
 from pathlib import Path
-from unicodedata import name
-
 
 class Keyboard:
     def __init__(self) -> None:
