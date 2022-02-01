@@ -1,50 +1,44 @@
 from functools import partial
+from itertools import chain
 from math import log2
-from string import ascii_lowercase
-from typing import Iterable, Optional, Sequence
+from typing import Any, Iterable, Optional, Sequence
 
 from utils.word import is_valid
 
 
-def safe_log2(x):
-    try:
-        return log2(x)
-    except ValueError:
-        return 0
+def p_log_p(p: float) -> float:
+    return p * log2(p) if p > 0 else 0
+
+
+def binary_entropy(key: Any, seq: Sequence) -> float:
+    p = seq.count(key) / len(seq)
+    return -sum(map(p_log_p, (p, 1 - p)))
 
 
 class EntropyPlayer:
     def __init__(self, vocabulary: Sequence[str]) -> None:
-        self.word_length = len(vocabulary[0])
-        assert all(len(word) == self.word_length for word in vocabulary)
-
         self.vocabulary = list(vocabulary)
         self.valid_words = list(vocabulary)
         self.last_guess: Optional[str] = None
 
     def guess(self) -> str:
+        words = self.valid_words if len(self.valid_words) <= 2 else self.vocabulary
 
-        entropy_per_letter = {}
-        entropy_per_position = [{} for _ in range(self.word_length)]
+        entropy_per_letter: dict[str, float] = {
+            letter: binary_entropy(True, [letter in w for w in self.valid_words])
+            for letter in set(chain(*words))
+        }
 
-        for letter in ascii_lowercase:
-            p_true = sum((letter in word) for word in self.valid_words) / len(self.valid_words)
-            entropy_per_letter[letter] = -sum(p * safe_log2(p) for p in (p_true, 1 - p_true))
-
-        for n in range(self.word_length):
-            for letter in ascii_lowercase:
-                p_true = sum((letter == word[n]) for word in self.valid_words) / len(self.valid_words)
-                entropy_per_position[n][letter] = -sum(p * safe_log2(p) for p in (p_true, 1 - p_true))
+        entropy_per_position: list[dict[str, float]] = [
+            dict(zip(a, map(partial(binary_entropy, seq=b), a)))
+            for a, b in zip(map(set, zip(*words)), zip(*self.valid_words))
+        ]
 
         def entropy(word: str) -> float:
-            return sum(entropy_per_letter[letter] for letter in set(word)) \
-                + sum(entropy_per_position[n][letter] for n, letter in enumerate(word))
+            return sum(entropy_per_letter[letter] for letter in set(word)) + \
+                sum(entropy_per_position[n][letter] for n, letter in enumerate(word))
 
-        # this part is ad-hoc and there is probably a better way
-        pool = self.valid_words if len(self.valid_words) < 3 else self.vocabulary
-
-        self.last_guess = max(pool, key=entropy)
-        self.vocabulary.remove(self.last_guess)
+        self.last_guess = max(words, key=entropy)
         return self.last_guess
 
     def update(self, feedback: Iterable[int]):
