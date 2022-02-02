@@ -29,7 +29,7 @@ class Game:
         self.is_won = False
         self.n_guesses = 0
 
-    def guess(self, guess: str) -> list[int]:
+    def guess(self, guess: str) -> tuple[int]:
         if len(guess) != self.word_length:
             raise WrongLengthGuess(guess)
 
@@ -40,7 +40,7 @@ class Game:
 
         if guess == self.answer:
             self.is_won = True
-            return self.word_length * [2]
+            return self.word_length * (2,)
 
         feedback = []
 
@@ -52,7 +52,7 @@ class Game:
             else:
                 feedback.append(0)
 
-        return feedback
+        return tuple(feedback)
 
 
 if __name__ == "__main__":

@@ -13,6 +13,7 @@ from utils.input import read_files
 from players.random_player import RandomPlayer
 from players.valid_player import ValidPlayer
 from players.entropy_player import EntropyPlayer
+from players.minimax_player import MinimaxPlayer
 
 
 def log_to_file(file: Path, **kwargs: dict[str, Any]) -> None:
@@ -69,6 +70,7 @@ def test(
         "random": RandomPlayer,
         "valid": ValidPlayer,
         "entropy": EntropyPlayer,
+        "minimax": MinimaxPlayer,
     }[player]
 
     player_vocab = {
@@ -109,7 +111,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--player", choices=["random", "valid", "entropy"], default="entropy")
+    parser.add_argument("-p", "--player", choices=["random", "valid", "entropy", "minimax"], default="entropy")
     parser.add_argument("-voc", "--vocabulary", choices=["answers", "allowed"], default="answers")
     parser.add_argument("-a", "--answer")
     parser.add_argument("-i", "--interactive", action="store_true")
