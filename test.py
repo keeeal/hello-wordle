@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from pandas import DataFrame
+from tqdm import tqdm
 
 from game import Game
 from utils.input import read_files
@@ -90,7 +91,8 @@ def test(
 
         with Pool() as p:
             game_lengths = p.starmap(
-                partial(play_game, verbose=verbose), zip(players, games)
+                partial(play_game, verbose=verbose),
+                tqdm(zip(players, games), total=len(games)),
             )
 
     for game, game_length in zip(games, game_lengths):
