@@ -53,6 +53,7 @@ def play_game(player, game: Optional[Game], verbose: bool):
 def test(
     player: str,
     vocabulary: str,
+    first_guess: Optional[str],
     answer: Optional[str],
     interactive: bool,
     verbose: bool,
@@ -78,11 +79,14 @@ def test(
         "allowed": allowed
     }[vocabulary]
 
+    answers = [answer] if answer else answers
+    assert len(set(answers).difference(allowed)) == 0
+
     if interactive:
-        game_lengths = [play_game(player_class(vocabulary=player_vocab), None, True)]
+        game_lengths = [play_game(player_class(player_vocab, first_guess), None, True)]
     else:
-        games = [Game([a], allowed) for a in ([answer] if answer else answers)]
-        players = [player_class(vocabulary=player_vocab) for _ in games]
+        games = [Game([a], allowed) for a in answers]
+        players = [player_class(player_vocab, first_guess) for _ in games]
 
         with Pool() as p:
             game_lengths = p.starmap(
@@ -94,6 +98,7 @@ def test(
             date_and_time + ".ndjson",
             player=player,
             vocabulary=vocabulary,
+            first_guess=first_guess,
             word=game.answer,
             game_length=game_length,
         )
@@ -101,6 +106,7 @@ def test(
     print()
     print(f"{player = }")
     print(f"{vocabulary = }")
+    print(f"{first_guess = }")
     print()
     print(DataFrame(game_lengths, columns=["game_lengths"]).describe())
     print()
@@ -113,6 +119,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--player", choices=["random", "valid", "entropy", "minimax"], default="entropy")
     parser.add_argument("-voc", "--vocabulary", choices=["answers", "allowed"], default="answers")
+    parser.add_argument("-f", "--first-guess")
     parser.add_argument("-a", "--answer")
     parser.add_argument("-i", "--interactive", action="store_true")
     parser.add_argument("-v", "--verbose", action="store_true")
