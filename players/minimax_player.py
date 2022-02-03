@@ -1,7 +1,6 @@
 
 
 from functools import partial
-from random import choices
 from typing import Iterable, Optional, Sequence
 
 from utils.word import is_valid
@@ -25,7 +24,7 @@ class MinimaxPlayer:
         for word in self.vocabulary:
             words_remaining = []
 
-            for valid_word in choices(self.valid_words, k=100):
+            for valid_word in self.valid_words:
                 feedback = Game([valid_word], [word]).guess(word)
                 remaining_words = sum(
                     map(
