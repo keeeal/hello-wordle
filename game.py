@@ -10,8 +10,15 @@ from utils.keyboard import Keyboard
 class InvalidGuess(Exception):
     pass
 
+
 class WrongLengthGuess(Exception):
     pass
+
+
+class Feedback(tuple):
+    def __str__(self) -> str:
+        return "".join(("⬜", "🟨", "🟩")[i] for i in self)
+
 
 class Game:
     def __init__(
@@ -40,7 +47,7 @@ class Game:
 
         if guess == self.answer:
             self.is_won = True
-            return self.word_length * (2,)
+            return Feedback(self.word_length * (2,))
 
         feedback = []
 
@@ -52,10 +59,10 @@ class Game:
             else:
                 feedback.append(0)
 
-        return tuple(feedback)
+        return Feedback(feedback)
 
 
-if __name__ == "__main__":
+def play():
     allowed_guesses, answers = read_files(
         Path("data") / "wordle-allowed-guesses.txt",
         Path("data") / "wordle-answers-alphabetical.txt",
@@ -71,14 +78,13 @@ if __name__ == "__main__":
             feedback = game.guess(guess)
         except InvalidGuess:
             print(f"{guess} is not a valid word.")
-            continue
         except WrongLengthGuess:
             print(f"Please enter a {game.word_length} letter word.")
-            continue
+        else:
+            keyboard.update(guess, feedback)
 
-        print(feedback)
-        print(*keyboard.board,sep="\n")
-
+            print(feedback)
+            print(keyboard)
 
         if game.is_won:
             print("you win")
@@ -87,3 +93,7 @@ if __name__ == "__main__":
         if game.n_guesses >= 6:
             print("you lose")
             break
+
+
+if __name__ == "__main__":
+    play()
