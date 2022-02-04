@@ -11,10 +11,13 @@ from tqdm import tqdm
 from game import Game
 from utils.input import read_files
 
+from players.convnet_player import ConvnetPlayer
+from players.entropy_player import EntropyPlayer
+from players.interaction_player import InteractionPlayer
+from players.mcts_player import MctsPlayer
+from players.minimax_player import MinimaxPlayer
 from players.random_player import RandomPlayer
 from players.valid_player import ValidPlayer
-from players.entropy_player import EntropyPlayer
-from players.minimax_player import MinimaxPlayer
 
 
 def log_to_file(file: Path, **kwargs: dict[str, Any]) -> None:
@@ -69,10 +72,13 @@ def test(
     )
 
     player_class = {
+        "convnet": ConvnetPlayer,
+        "entropy": EntropyPlayer,
+        "interaction": InteractionPlayer,
+        "mcts": MctsPlayer,
+        "minimax": MinimaxPlayer,
         "random": RandomPlayer,
         "valid": ValidPlayer,
-        "entropy": EntropyPlayer,
-        "minimax": MinimaxPlayer,
     }[player]
 
     player_vocab = {
@@ -119,7 +125,8 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--player", choices=["random", "valid", "entropy", "minimax"], default="entropy")
+    players = ["convnet", "entropy", "interaction", "mcts", "minimax", "random", "valid"]
+    parser.add_argument("-p", "--player", choices=players, default="entropy")
     parser.add_argument("-voc", "--vocabulary", choices=["answers", "allowed"], default="answers")
     parser.add_argument("-f", "--first-guess")
     parser.add_argument("-a", "--answer")

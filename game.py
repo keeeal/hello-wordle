@@ -30,6 +30,9 @@ class Game:
         for word in chain(answers, allowed_guesses):
             assert len(word) == word_length
 
+        for answer in answers:
+            assert answer in allowed_guesses
+
         self.answer = choice(answers)
         self.allowed_guesses = allowed_guesses
         self.word_length = word_length
