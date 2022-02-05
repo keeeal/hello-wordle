@@ -17,9 +17,7 @@ class MctsPlayer:
         return self.last_guess
 
     def update(self, feedback: Iterable[int]) -> None:
-        self.valid_words = list(
-            filter(
-                partial(is_valid, last_guess=self.last_guess, feedback=feedback),
-                self.valid_words,
-            )
-        )
+        self.valid_words = [
+            word for word in self.valid_words
+            if is_valid(word, self.last_guess, feedback)
+        ]

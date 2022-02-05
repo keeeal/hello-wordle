@@ -19,25 +19,21 @@ class MinimaxPlayer:
             self.last_guess = self.first_guess
             return self.last_guess
 
-        word_scores = {}
+        scores = {}
 
-        for word in self.vocabulary:
+        for guess in self.vocabulary:
             words_remaining = []
 
-            for valid_word in self.valid_words:
-                feedback = Game([valid_word], [word]).guess(word)
-                remaining_words = sum(
-                    map(
-                        partial(is_valid, last_guess=word, feedback=feedback),
-                        self.valid_words
-                    )
-                )
+            for answer in self.valid_words:
+                feedback = Game([answer], [guess, answer]).guess(guess)
+                words_remaining.append(sum(
+                    is_valid(word, guess, feedback)
+                    for word in self.valid_words
+                ))
 
-                words_remaining.append(remaining_words)
+            scores[guess] = max(words_remaining)
 
-            word_scores[word] = max(words_remaining)
-
-        next_guesses = [word for word, score in word_scores.items() if score == min(word_scores.values())]
+        next_guesses = [guess for guess, score in scores.items() if score == min(scores.values())]
         self.last_guess = next_guesses[0]
 
         for next_guess in next_guesses:
@@ -47,9 +43,7 @@ class MinimaxPlayer:
         return self.last_guess
 
     def update(self, feedback: Iterable[int]) -> None:
-        self.valid_words = list(
-            filter(
-                partial(is_valid, last_guess=self.last_guess, feedback=feedback),
-                self.valid_words,
-            )
-        )
+        self.valid_words = [
+            word for word in self.valid_words
+            if is_valid(word, self.last_guess, feedback)
+        ]

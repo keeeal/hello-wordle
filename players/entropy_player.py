@@ -27,29 +27,27 @@ class EntropyPlayer:
             self.last_guess = self.first_guess
             return self.last_guess
 
-        words = self.valid_words if len(self.valid_words) <= 2 else self.vocabulary
+        guesses = self.valid_words if len(self.valid_words) <= 2 else self.vocabulary
 
         entropy_per_letter: dict[str, float] = {
             letter: binary_entropy(True, [letter in w for w in self.valid_words])
-            for letter in set(chain(*words))
+            for letter in set(chain(*guesses))
         }
 
         entropy_per_position: list[dict[str, float]] = [
             dict(zip(a, map(partial(binary_entropy, seq=b), a)))
-            for a, b in zip(map(set, zip(*words)), zip(*self.valid_words))
+            for a, b in zip(map(set, zip(*guesses)), zip(*self.valid_words))
         ]
 
         def entropy(word: str) -> float:
             return sum(entropy_per_letter[letter] for letter in set(word)) + \
                 sum(entropy_per_position[n][letter] for n, letter in enumerate(word))
 
-        self.last_guess = max(words, key=entropy)
+        self.last_guess = max(guesses, key=entropy)
         return self.last_guess
 
     def update(self, feedback: Iterable[int]) -> None:
-        self.valid_words = list(
-            filter(
-                partial(is_valid, last_guess=self.last_guess, feedback=feedback),
-                self.valid_words,
-            )
-        )
+        self.valid_words = [
+            word for word in self.valid_words
+            if is_valid(word, self.last_guess, feedback)
+        ]
