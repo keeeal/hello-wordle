@@ -3,7 +3,7 @@ from pathlib import Path
 from random import choice
 from typing import Sequence
 
-from utils.input import read_files
+from utils.data import load_words
 from utils.keyboard import Keyboard
 
 
@@ -39,7 +39,7 @@ class Game:
         self.is_won = False
         self.n_guesses = 0
 
-    def guess(self, guess: str) -> tuple[int]:
+    def guess(self, guess: str) -> Feedback:
         if len(guess) != self.word_length:
             raise WrongLengthGuess(guess)
 
@@ -74,7 +74,7 @@ def play():
     game = Game(answers, allowed_guesses)
     keyboard = Keyboard()
 
-    while not game.is_won:
+    while True:
         guess = input()
 
         try:
@@ -91,11 +91,11 @@ def play():
 
         if game.is_won:
             print("you win")
-            break
+            return
 
         if game.n_guesses >= 6:
             print("you lose")
-            break
+            return
 
 
 if __name__ == "__main__":

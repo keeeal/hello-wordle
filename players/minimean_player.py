@@ -15,10 +15,10 @@ def score(word: str, answers: list[str]) -> float:
             sum(is_valid(a, word, feedback) for a in answers)
         )
 
-    return max(words_remaining)
+    return sum(words_remaining) / len(words_remaining)
 
 
-class MinimaxPlayer:
+class MinimeanPlayer:
     def __init__(
         self, vocabulary: Sequence[str], first_guess: Optional[str] = None
     ) -> None:

@@ -1,4 +1,3 @@
-from functools import partial
 from random import choice
 from typing import Iterable, Optional, Sequence
 

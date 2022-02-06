@@ -1,5 +1,7 @@
+from functools import partial
 from itertools import chain, combinations, product
 from math import log2
+from multiprocessing import Pool
 from typing import Iterable, Optional, Sequence
 
 from utils.word import is_valid
@@ -21,6 +23,13 @@ def interaction_information(*x: Sequence[bool]) -> float:
     return sum(
         pow(-1, len(t) - 1) * joint_entropy(*t)
         for t in chain(*(combinations(x, r + 1) for r in range(len(x))))
+    )
+
+
+def score(word: str, letter_in_word: dict, letter_in_position: list[dict]) -> float:
+    return interaction_information(
+        *map(letter_in_word.get, word),
+        *(d[letter] for d, letter in zip(letter_in_position, word))
     )
 
 
@@ -50,13 +59,17 @@ class InteractionPlayer:
             for a, b in zip(map(set, zip(*guesses)), zip(*self.valid_words))
         ]
 
-        def score(word: str) -> float:
-            return interaction_information(
-                *map(letter_in_word.get, word),
-                *(d[letter] for d, letter in zip(letter_in_position, word))
+        with Pool() as p:
+            scores = p.map(
+                partial(
+                    score,
+                    letter_in_word=letter_in_word,
+                    letter_in_position=letter_in_position,
+                ),
+                guesses,
             )
 
-        self.last_guess = max(guesses, key=score)
+        self.last_guess = max(zip(scores, guesses))[1]
         return self.last_guess
 
     def update(self, feedback: Iterable[int]) -> None:

@@ -1,7 +1,8 @@
 from functools import partial
 from itertools import chain
 from math import log2
-from typing import Any, Iterable, Optional, Sequence
+from multiprocessing import Pool
+from typing import Iterable, Optional, Sequence
 
 from utils.word import is_valid
 
@@ -10,9 +11,14 @@ def p_log_p(p: float) -> float:
     return p * log2(p) if p > 0 else 0
 
 
-def binary_entropy(key: Any, seq: Sequence) -> float:
-    p = seq.count(key) / len(seq)
+def entropy(x: Sequence[bool]) -> float:
+    p = sum(x) / len(x)
     return -sum(map(p_log_p, (p, 1 - p)))
+
+
+def score(word: str, letter_in_word: dict, letter_in_position: list[dict]):
+    return sum(entropy(letter_in_word[letter]) for letter in word) + \
+        sum(entropy(d[letter]) for d, letter in zip(letter_in_position, word))
 
 
 class EntropyPlayer:
@@ -29,21 +35,27 @@ class EntropyPlayer:
 
         guesses = self.valid_words if len(self.valid_words) <= 2 else self.vocabulary
 
-        entropy_per_letter: dict[str, float] = {
-            letter: binary_entropy(True, [letter in w for w in self.valid_words])
+        letter_in_word: dict[str, list[bool]] = {
+            letter: [letter in word for word in self.valid_words]
             for letter in set(chain(*guesses))
         }
 
-        entropy_per_position: list[dict[str, float]] = [
-            dict(zip(a, map(partial(binary_entropy, seq=b), a)))
+        letter_in_position: list[dict[str, list[bool]]] = [
+            {letter: [letter == i for i in b] for letter in a}
             for a, b in zip(map(set, zip(*guesses)), zip(*self.valid_words))
         ]
 
-        def entropy(word: str) -> float:
-            return sum(entropy_per_letter[letter] for letter in set(word)) + \
-                sum(entropy_per_position[n][letter] for n, letter in enumerate(word))
+        with Pool() as p:
+            scores = p.map(
+                partial(
+                    score,
+                    letter_in_word=letter_in_word,
+                    letter_in_position=letter_in_position,
+                ),
+                guesses,
+            )
 
-        self.last_guess = max(guesses, key=entropy)
+        self.last_guess = max(zip(scores, guesses))[1]
         return self.last_guess
 
     def update(self, feedback: Iterable[int]) -> None:
