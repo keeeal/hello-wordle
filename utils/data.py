@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 def load_words(*files: Path) -> list[str]:
     words = set()
 

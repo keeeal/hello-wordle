@@ -2,17 +2,20 @@ from functools import partial
 from multiprocessing import Pool
 from typing import Iterable, Optional, Sequence
 
-from utils.word import is_valid
-from game import Game
+from utils.game import Feedback
 
 
-def score(word: str, answers: list[str]) -> float:
+def score(guess: str, answers: list[str]) -> float:
     words_remaining = []
 
     for answer in answers:
-        feedback = Game([answer], [answer, word]).guess(word)
+        # feedback = Game([answer], [answer, word]).guess(word)
+        feedback = Feedback(guess, answer)
         words_remaining.append(
-            sum(is_valid(a, word, feedback) for a in answers)
+            sum(
+                Feedback(guess, answer) == feedback
+                for answer in answers
+            )
         )
 
     return max(words_remaining)
@@ -50,5 +53,5 @@ class MinimaxPlayer:
     def update(self, feedback: Iterable[int]) -> None:
         self.valid_words = [
             word for word in self.valid_words
-            if is_valid(word, self.last_guess, feedback)
+            if Feedback(self.last_guess, word) == feedback
         ]

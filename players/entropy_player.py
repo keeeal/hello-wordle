@@ -4,7 +4,7 @@ from math import log2
 from multiprocessing import Pool
 from typing import Iterable, Optional, Sequence
 
-from utils.word import is_valid
+from utils.game import Feedback
 
 
 def p_log_p(p: float) -> float:
@@ -61,5 +61,5 @@ class EntropyPlayer:
     def update(self, feedback: Iterable[int]) -> None:
         self.valid_words = [
             word for word in self.valid_words
-            if is_valid(word, self.last_guess, feedback)
+            if Feedback(self.last_guess, word) == feedback
         ]

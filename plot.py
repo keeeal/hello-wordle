@@ -1,8 +1,6 @@
 from functools import partial
-import json
-from itertools import chain
+from json import loads
 from pathlib import Path
-from typing import Iterator
 
 from pandas import DataFrame, concat
 from seaborn import lineplot
@@ -10,7 +8,7 @@ from seaborn import lineplot
 
 def read_log(file: Path, bin: bool = False) -> DataFrame:
     with open(file) as f:
-        data = DataFrame(map(json.loads, f.readlines()))
+        data = DataFrame(map(loads, f.readlines()))
 
     if bin:
         binned_data = []

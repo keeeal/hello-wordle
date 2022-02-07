@@ -1,5 +1,7 @@
 from typing import Iterable, Optional, Sequence
 
+from utils.game import Feedback
+
 
 class MctsPlayer:
     def __init__(self, vocabulary: Sequence[str], first_guess: Optional[str] = None) -> None:
@@ -19,5 +21,5 @@ class MctsPlayer:
     def update(self, feedback: Iterable[int]) -> None:
         self.valid_words = [
             word for word in self.valid_words
-            if is_valid(word, self.last_guess, feedback)
+            if Feedback(self.last_guess, word) == feedback
         ]

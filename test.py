@@ -6,15 +6,13 @@ from typing import Any, Optional
 from pandas import DataFrame
 from tqdm import tqdm
 
-from game import Game, Feedback
 from utils.data import load_words
+from utils.game import Game, Feedback
 
 from players.convnet_player import ConvnetPlayer
 from players.entropy_player import EntropyPlayer
-from players.interaction_player import InteractionPlayer
 from players.mcts_player import MctsPlayer
 from players.minimax_player import MinimaxPlayer
-from players.minimean_player import MinimeanPlayer
 from players.valid_player import ValidPlayer
 
 
@@ -48,8 +46,8 @@ def play_game(player, game: Optional[Game], verbose: bool):
 
         player.update(feedback)
 
-        if game and game.is_won:
-            return game.n_guesses
+        if feedback.is_win():
+            return len(game.guesses)
 
 
 def test(
@@ -67,10 +65,8 @@ def test(
     player_class = {
         "convnet": ConvnetPlayer,
         "entropy": EntropyPlayer,
-        "interaction": InteractionPlayer,
         "mcts": MctsPlayer,
         "minimax": MinimaxPlayer,
-        "minimean": MinimeanPlayer,
         "valid": ValidPlayer,
     }[player]
 
