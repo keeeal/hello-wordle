@@ -1,4 +1,3 @@
-from pathlib import Path
 from string import Template, ascii_lowercase
 from typing import Iterable
 

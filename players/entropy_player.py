@@ -1,13 +1,9 @@
 from functools import partial
-from math import log, log2, exp
+from math import log2
 from multiprocessing import Pool
 from typing import Iterable, Optional
 
 from utils.game import Feedback
-
-
-def sigmoid(x: float) -> float:
-    return 1 / (1 + exp(-x))
 
 
 def p_log_p(p: float) -> float:
@@ -24,19 +20,6 @@ def entropy(guess: str, answers: dict[str, float]) -> float:
     total = sum(answers.values())
     p = [sum(map(answers.get, feedback[f])) / total for f in feedback]
     return -sum(map(p_log_p, p))
-
-
-def normalise_frequencies(
-    vocabulary: dict[str, float], scale: float
-) -> dict[str, float]:
-    words, freqs = zip(*vocabulary.items())
-    inv_freqs = [1 - f for f in freqs]
-    alpha = 1 + len(inv_freqs) / sum(map(log, inv_freqs))
-    lin_inv_freqs = [pow(f, -alpha) for f in inv_freqs]
-    lin_freqs = [1 - f for f in lin_inv_freqs]
-    mean_lin_freq = sum(lin_freqs) / len(lin_freqs)
-    lin_freqs = [scale * (f - mean_lin_freq) for f in lin_freqs]
-    return dict(zip(words, map(sigmoid, lin_freqs)))
 
 
 class EntropyPlayer:

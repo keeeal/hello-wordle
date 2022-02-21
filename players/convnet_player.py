@@ -1,5 +1,7 @@
 from typing import Iterable, Optional
 
+from utils.game import Feedback
+
 
 class ConvnetPlayer:
     def __init__(self, vocabulary: dict[str, float], first_guess: Optional[str] = None) -> None:

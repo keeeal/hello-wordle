@@ -14,6 +14,7 @@ from players.entropy_player import EntropyPlayer
 from players.mcts_player import MctsPlayer
 from players.minimax_player import MinimaxPlayer
 from players.valid_player import ValidPlayer
+from utils.math import normalise_frequencies
 
 
 def log_to_file(file: Path, **kwargs) -> None:
@@ -86,6 +87,7 @@ def test(
 
     freq = load_frequencies(Path("data") / "frequencies.json")
     words = {word: freq[word] for word in words}
+    words = normalise_frequencies(words, scale=10)
     print(f"{len(words)} words.")
 
     # create games and players
