@@ -1,6 +1,6 @@
 from functools import partial
 from multiprocessing import Pool
-from typing import Iterable, Optional, Sequence
+from typing import Iterable, Optional
 
 from utils.game import Feedback
 
@@ -23,7 +23,7 @@ def score(guess: str, answers: list[str]) -> float:
 
 class MinimaxPlayer:
     def __init__(
-        self, vocabulary: Sequence[str], first_guess: Optional[str] = None
+        self, vocabulary: dict[str, float], first_guess: Optional[str] = None
     ) -> None:
         self.vocabulary = list(vocabulary)
         self.valid_words = list(vocabulary)

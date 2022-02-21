@@ -1,4 +1,3 @@
-from itertools import chain
 from random import choice
 from typing import Sequence
 
@@ -23,9 +22,9 @@ class Feedback(tuple):
             if letter and letter in answer_letters:
                 values[n] = 1
                 answer_letters.remove(letter)
-        
+
         return super().__new__(Feedback, values)
-    
+
     def __str__(self) -> str:
         return "".join(("⬜", "🟨", "🟩")[i] for i in self)
 

@@ -1,10 +1,10 @@
 from random import choice
-from typing import Iterable, Optional, Sequence
+from typing import Iterable, Optional
 
 from utils.game import Feedback
 
 class ValidPlayer:
-    def __init__(self, vocabulary: Sequence[str], first_guess: Optional[str] = None) -> None:
+    def __init__(self, vocabulary: dict[str, float], first_guess: Optional[str] = None) -> None:
         self.valid_words = list(vocabulary)
         self.first_guess = first_guess
         self.last_guess: Optional[str] = None

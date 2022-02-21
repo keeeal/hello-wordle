@@ -1,8 +1,8 @@
-from typing import Iterable, Optional, Sequence
+from typing import Iterable, Optional
 
 
 class ConvnetPlayer:
-    def __init__(self, vocabulary: Sequence[str], first_guess: Optional[str] = None) -> None:
+    def __init__(self, vocabulary: dict[str, float], first_guess: Optional[str] = None) -> None:
         self.vocabulary = list(vocabulary)
         self.valid_words = list(vocabulary)
         self.first_guess = first_guess
@@ -13,11 +13,11 @@ class ConvnetPlayer:
             self.last_guess = self.first_guess
             return self.last_guess
 
-        self.last_guess = "thicc"
+        self.last_guess = "hello"
         return self.last_guess
 
     def update(self, feedback: Iterable[int]) -> None:
         self.valid_words = [
             word for word in self.valid_words
-            if is_valid(word, self.last_guess, feedback)
+            if Feedback(self.last_guess, word) == feedback
         ]

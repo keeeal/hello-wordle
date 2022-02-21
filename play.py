@@ -6,8 +6,8 @@ from utils.keyboard import Keyboard
 
 
 def play():
-    allowed = load_words(Path("data") / "wordle-allowed-guesses.txt")
-    answers = load_words(Path("data") / "wordle-answers-alphabetical.txt")
+    allowed = load_words(Path("data") / "wordle-allowed.txt")
+    answers = load_words(Path("data") / "wordle-answers.txt")
     allowed.extend(answers)
 
     game = Game(answers, allowed)

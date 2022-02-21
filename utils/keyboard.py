@@ -15,7 +15,7 @@ colours = [
     "\u001b[30;1m",  # grey
     "\u001b[33;1m",  # yellow
     "\u001b[32;1m",  # green
-    "\u001b[0m",  # reset
+    "\u001b[0m",     # reset
 ]
 
 
