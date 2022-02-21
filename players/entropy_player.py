@@ -26,9 +26,8 @@ class EntropyPlayer:
     def __init__(
         self, vocabulary: dict[str, float], first_guess: Optional[str] = None
     ) -> None:
-        self.vocabulary = list(vocabulary)
+        self.vocabulary = vocabulary
         self.valid_words = list(vocabulary)
-        self.frequencies = normalise_frequencies(vocabulary, scale=10)
         self.first_guess = first_guess
         self.last_guess = None
 
@@ -37,8 +36,8 @@ class EntropyPlayer:
             self.last_guess = self.first_guess
             return self.last_guess
 
-        guesses = self.valid_words if len(self.valid_words) <= 2 else self.vocabulary
-        valid_freqs = {word: self.frequencies[word] for word in self.valid_words}
+        guesses = self.valid_words if len(self.valid_words) <= 2 else list(self.vocabulary)
+        valid_freqs = {word: self.vocabulary[word] for word in self.valid_words}
 
         with Pool() as p:
             scores = p.map(partial(entropy, answers=valid_freqs), guesses)
